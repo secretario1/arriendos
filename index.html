@@ -89,9 +89,10 @@
   @media(max-width:640px){ .score-note{text-align:left;} }
 
   .stat-grid{
-    display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-top:16px;
+    display:grid; grid-template-columns:repeat(5,1fr); gap:12px; margin-top:16px;
   }
-  @media(max-width:760px){ .stat-grid{grid-template-columns:repeat(2,1fr);} }
+  @media(max-width:900px){ .stat-grid{grid-template-columns:repeat(3,1fr);} }
+  @media(max-width:600px){ .stat-grid{grid-template-columns:repeat(2,1fr);} }
   .stat{
     background:var(--card); border:1px solid var(--line); border-radius:20px; padding:20px;
   }
@@ -173,7 +174,7 @@
           <div class="brand-sub">Fundado en 1961</div>
         </div>
       </div>
-      <span class="nav-chip">147 movimientos</span>
+      <span class="nav-chip">157 movimientos</span>
     </div>
   </div>
 
@@ -184,14 +185,15 @@
       <div class="score-card">
         <div>
           <div class="score-label">Resultado neto acumulado</div>
-          <div class="score pos" id="hero-score">+$540.700</div>
+          <div class="score pos" id="hero-score">+$524.700</div>
         </div>
         <div class="score-note">Diferencia entre lo pagado por los partidos y lo gastado en mantención de la cancha.</div>
       </div>
       <div class="stat-grid">
-        <div class="stat"><div class="n pos">$5.630.000</div><div class="l">Ingresos totales</div></div>
-        <div class="stat"><div class="n neg">$5.089.300</div><div class="l">Gastos totales</div></div>
-        <div class="stat"><div class="n pos">$625.556</div><div class="l">Ingreso promedio / mes</div></div>
+        <div class="stat"><div class="n">98</div><div class="l">Arriendos registrados</div></div>
+        <div class="stat"><div class="n pos">$5.930.000</div><div class="l">Ingresos totales</div></div>
+        <div class="stat"><div class="n neg">$5.405.300</div><div class="l">Gastos totales</div></div>
+        <div class="stat"><div class="n pos">$658.889</div><div class="l">Ingreso promedio / mes</div></div>
         <div class="stat"><div class="n">4 de 9</div><div class="l">Meses en positivo</div></div>
       </div>
     </div>
@@ -254,50 +256,52 @@
 
 <script>
 const MONTHLY = [
-  {mes:'Enero',      ingresos:1875000, gastos:964000},
-  {mes:'Febrero',    ingresos:845000,  gastos:1053100},
-  {mes:'Marzo',      ingresos:990000,  gastos:880200},
-  {mes:'Abril',      ingresos:510000,  gastos:537400},
-  {mes:'Mayo',       ingresos:735000,  gastos:446200},
-  {mes:'Junio',      ingresos:410000,  gastos:640300},
-  {mes:'Julio',      ingresos:180000,  gastos:170000},
-  {mes:'Agosto',     ingresos:25000,   gastos:243100},
-  {mes:'Septiembre', ingresos:60000,   gastos:155000},
+  {mes:'Enero', ingresos:1875000, gastos:964000},
+  {mes:'Febrero', ingresos:845000, gastos:1053100},
+  {mes:'Marzo', ingresos:990000, gastos:880200},
+  {mes:'Abril', ingresos:510000, gastos:537400},
+  {mes:'Mayo', ingresos:735000, gastos:446200},
+  {mes:'Junio', ingresos:410000, gastos:640300},
+  {mes:'Julio', ingresos:180000, gastos:170000},
+  {mes:'Agosto', ingresos:25000, gastos:243100},
+  {mes:'Septiembre', ingresos:360000, gastos:471000},
 ].map(m => ({...m, neto: m.ingresos - m.gastos}));
 
 const EQUIPOS = [
-  ['ROJO Y BLANCO', 1690000],
-  ['CONTERTULIOS', 1560000],
-  ['LIGA SARMIENTO', 800000],
-  ['ENTREAMIGOS', 260000],
-  ['NEGROS FC', 255000],
-  ['CRISTINA', 200000],
-  ['LOS NOGALES', 200000],
-  ['ARRIENDO NUEVO', 150000],
+  ["ROJO Y BLANCO", 1750000],
+  ["CONTERTULIOS", 1560000],
+  ["LIGA SARMIENTO", 800000],
+  ["NEGROS FC", 315000],
+  ["ENTREAMIGOS", 260000],
+  ["CRISTINA", 200000],
+  ["LOS NOGALES", 200000],
+  ["ARRIENDO NUEVO", 150000],
 ];
 
 const CATEGORIAS = [
-  ['Aseo', 1318000],
-  ['Corte de pasto', 650000],
-  ['Riego', 490000],
-  ['Agua', 482500],
-  ['Bencina', 339500],
-  ['Luz', 280400],
-  ['Lavado camisetas', 266000],
-  ['Cal cancha', 203000],
-  ['Correas', 140900],
-  ['Luis Bobadilla', 140000],
-  ['Cuota Tato', 200000],
-  ['Abonos', 120000],
-  ['Mantención máquina', 93000],
-  ['Pollo', 200000],
-  ['Viaje al sur', 50000],
-  ['Nando', 30000],
-  ['Regalos / detalles', 30000],
-  ['Raspa canal', 20000],
-  ['Limpieza asequia', 20000],
-  ['Accesorio baño', 10000],
-  ['Carbón', 6000],
+  ["Aseo", 1358000],
+  ["Corte de pasto", 720000],
+  ["Riego", 510000],
+  ["Agua", 482500],
+  ["Bencina", 399500],
+  ["Luz", 321600],
+  ["Lavado camisetas", 266000],
+  ["Cal cancha", 232800],
+  ["Pollo", 200000],
+  ["Cuota Tato", 200000],
+  ["Correas", 140900],
+  ["Luis Bobadilla", 140000],
+  ["Abonos", 120000],
+  ["Mantención máquina", 93000],
+  ["Viaje al sur", 50000],
+  ["Bastias", 40000],
+  ["Nando", 30000],
+  ["Regalos / detalles", 30000],
+  ["Raspa canal", 20000],
+  ["Limpieza asequia", 20000],
+  ["Arreglo foco", 15000],
+  ["Accesorio baño", 10000],
+  ["Carbón", 6000],
 ];
 
 // Paleta monocromática grafito con acentos rojo/azul para la dona de categorías
