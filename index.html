@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Arriendo de Cancha - Con Cifras Visibles</title>
+    <!-- Chart.js para los gráficos -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Plugin para renderizar etiquetas con valores numéricos sobre las barras -->
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
+    <style>
+        :root {
+            --bg-principal: #0f172a;
+            --bg-tarjeta: #1e293b;
+            --texto-principal: #f8fafc;
+            --texto-secundario: #94a3b8;
+            --borde: #334155;
+            --ingresos: #10b981;
+            --gastos: #ef4444;
+            --balance: #38bdf8;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background-color: var(--bg-principal);
+            color: var(--texto-principal);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            margin-bottom: 25px;
+            border-bottom: 1px solid var(--borde);
+            padding-bottom: 15px;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 26px;
+            letter-spacing: -0.5px;
+        }
+
+        header p {
+            color: var(--texto-secundario);
+            margin: 5px 0 0 0;
+            font-size: 14px;
+        }
+
+        /* Resumen de KPI */
+        .kpi-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .kpi-card {
+            background-color: var(--bg-tarjeta);
+            border: 1px solid var(--borde);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+
+        .kpi-title {
+            font-size: 13px;
+            color: var(--texto-secundario);
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .kpi-value {
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .kpi-value.ingreso { color: var(--ingresos); }
+        .kpi-value.gasto { color: var(--gastos); }
+        .kpi-value.balance { color: var(--balance); }
+
+        /* Contenedor de Gráficos */
+        .charts-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 25px;
+        }
+
+        .chart-card {
+            background-color: var(--bg-tarjeta);
+            border: 1px solid var(--borde);
+            border-radius: 12px;
+            padding: 24px;
+            height: 500px; /* Ampliado para mejor lectura de las etiquetas */
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            box-sizing: border-box;
+        }
+
+        .chart-card.horizontal {
+            height: 550px;
+        }
+
+        .chart-card h2 {
+            font-size: 18px;
+            margin-top: 0;
+            margin-bottom: 20px;
+            color: var(--texto-principal);
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard-container">
+        <header>
+            <h1>Dashboard de Control Financiero: Arriendo Cancha</h1>
+            <p>Visualización optimizada con montos claros por mes y categoría de egreso</p>
+        </header>
+
+        <!-- Tarjetas de Resumen KPI -->
+        <div class="kpi-container">
+            <div class="kpi-card">
+                <div class="kpi-title">Total Ingresos Recaudados</div>
+                <div class="kpi-value ingreso">$7.440.000</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-title">Total Egresos Operacionales</div>
+                <div class="kpi-value gasto">$7.106.680</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-title">Saldo Neto / Utilidad</div>
+                <div class="kpi-value balance">$333.320</div>
+            </div>
+        </div>
+
+        <!-- Sección de Gráficos -->
+        <div class="charts-container">
+            <!-- Gráfico 1: Gastos vs Ingresos Mensuales con Cifras Integradas -->
+            <div class="chart-card">
+                <h2>Comparativa Mensual: Ingresos v/s Egresos (Cifras sobre barras)</h2>
+                <canvas id="chartComparativa"></canvas>
+            </div>
+
+            <!-- Gráfico 2: Acumulado por Tipo de Gasto -->
+            <div class="chart-card horizontal">
+                <h2>Acumulado por Tipo de Gasto (Egresos Detallados)</h2>
+                <canvas id="chartTipoGasto"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Registrar el plugin de etiquetas para que aplique a los gráficos
+        Chart.register(ChartDataLabels);
+
+        // Configuración global de estilos para Chart.js en entorno oscuro
+        Chart.defaults.color = '#94a3b8';
+        Chart.defaults.font.family = "'Segoe UI', system-ui, sans-serif";
+
+        // Formateador de números a moneda chilena ($1.234.567)
+        const formatCurrency = (value) => {
+            if (value === 0) return '';
+            return '$' + value.toLocaleString('es-CL');
+        };
+
+        // 1. Gráfico de Barras: Comparativa Mensual con Valores Visibles
+        const ctxComp = document.getElementById('chartComparativa').getContext('2d');
+        new Chart(ctxComp, {
+            type: 'bar',
+            data: {
+                labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov'],
+                datasets: [
+                    {
+                        label: 'Ingresos',
+                        data: [1875000, 845000, 990000, 510000, 735000, 410000, 180000, 25000, 720000, 780000, 370000],
+                        backgroundColor: '#10b981',
+                        borderRadius: 4
+                    },
+                    {
+                        label: 'Egresos',
+                        data: [964000, 1053100, 880200, 537400, 446200, 640300, 170000, 243100, 665910, 1296600, 209870],
+                        backgroundColor: '#ef4444',
+                        borderRadius: 4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { 
+                        position: 'top', 
+                        labels: { boxWidth: 12, font: { weight: 'bold' } } 
+                    },
+                    datalabels: {
+                        anchor: 'end',
+                        align: 'end',
+                        offset: 2,
+                        color: '#f8fafc',
+                        font: {
+                            size: 10,
+                            weight: 'bold'
+                        },
+                        formatter: formatCurrency,
+                        // Evita que se amontonen ocultando valores si la barra es muy baja
+                        display: function(context) {
+                            return context.dataset.data[context.dataIndex] > 40000;
+                        }
+                    }
+                },
+                scales: {
+                    y: { 
+                        grid: { color: '#334155' },
+                        ticks: { callback: value => '$' + value.toLocaleString('es-CL') },
+                        suggestedMax: 2100000 /* Margen superior para las etiquetas */
+                    },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+
+        // 2. Gráfico de Barras Horizontal: Acumulado por Tipo de Gasto con Valores Visibles
+        const ctxGasto = document.getElementById('chartTipoGasto').getContext('2d');
+        new Chart(ctxGasto, {
+            type: 'bar',
+            data: {
+                labels: [
+                    'Aseo', 'Corte Pasto', 'Pago Agua', 'Riego Cancha', 
+                    'Bencina', 'Lavado Camisetas', 'Pago Luz', 'Camarín', 
+                    'Cal', 'Apoyo Lesionado / Tato'
+                ],
+                datasets: [{
+                    label: 'Monto Acumulado ($)',
+                    data: [1650000, 930000, 661180, 615000, 544500, 482000, 361300, 340000, 255800, 400000],
+                    backgroundColor: '#38bdf8',
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    datalabels: {
+                        anchor: 'end',
+                        align: 'end',
+                        offset: 4,
+                        color: '#f8fafc',
+                        font: {
+                            size: 11,
+                            weight: 'bold'
+                        },
+                        formatter: formatCurrency
+                    }
+                },
+                scales: {
+                    x: { 
+                        grid: { color: '#334155' },
+                        ticks: { callback: value => '$' + value.toLocaleString('es-CL') },
+                        suggestedMax: 1900000
+                    },
+                    y: { grid: { display: false } }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
